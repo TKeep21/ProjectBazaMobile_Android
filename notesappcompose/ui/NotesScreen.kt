@@ -7,27 +7,27 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.*
 import androidx.compose.ui.unit.dp
-import com.example.notesappcompose.ui.components.TaskCard
+import com.example.notesappcompose.ui.components.NoteCard
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TaskListScreen(
-    viewModel: TaskViewModel,
-    onCreateTask: () -> Unit
+fun NotesScreen(
+    viewModel: NoteViewModel,
+    onCreateNote: () -> Unit
 ) {
-    val tasks by viewModel.tasks.collectAsState()
+    val notes by viewModel.notes.collectAsState()
 
     Scaffold(
         topBar = {
-            TopAppBar(title = { Text("Задачи") })
+            TopAppBar(title = { Text("Записи") })
         },
         floatingActionButton = {
-            FloatingActionButton(onClick = onCreateTask) {
+            FloatingActionButton(onClick = onCreateNote) {
                 Text("+")
             }
         }
     ) { padding ->
-        if (tasks.isEmpty()) {
+        if (notes.isEmpty()) {
             Box(
                 modifier = Modifier
                     .padding(padding)
@@ -35,7 +35,7 @@ fun TaskListScreen(
                 contentAlignment = Alignment.Center
             ) {
                 Text(
-                    text = "Пока нет задач",
+                    text = "Пока нет записей",
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
@@ -44,13 +44,14 @@ fun TaskListScreen(
                 modifier = Modifier.padding(padding),
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                items(tasks) { task ->
-                    TaskCard(
-                        task = task,
-                        onToggleComplete = { viewModel.toggleComplete(task.id) }
+                items(notes) { note ->
+                    NoteCard(
+                        note = note,
+                        onDelete = { viewModel.deleteNote(note.id) }
                     )
                 }
             }
         }
     }
 }
+

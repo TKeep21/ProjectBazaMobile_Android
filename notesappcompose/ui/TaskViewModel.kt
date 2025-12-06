@@ -1,16 +1,35 @@
 package com.example.notesappcompose.ui
 
-import androidx.compose.runtime.mutableStateListOf
 import androidx.lifecycle.ViewModel
-import com.example.notesappcompose.Task
+import com.example.notesappcompose.data.TaskRepository
+import com.example.notesappcompose.data.Priority
+import com.example.notesappcompose.data.Task
+import kotlinx.coroutines.flow.StateFlow
 
 class TaskViewModel : ViewModel() {
 
-    // список задач
-    val tasks = mutableStateListOf<Task>()
+    private val repo = TaskRepository()
 
-    fun addTask(title: String, details: String?) {
-        val t = Task(title = title, details = details)
-        tasks.add(t)
+    val tasks: StateFlow<List<Task>> = repo.tasks
+
+    fun addTask(
+        title: String,
+        description: String,
+        priority: Priority,
+        flagged: Boolean,
+        deadline: java.time.LocalDateTime?
+    ) {
+        val task = Task(
+            title = title,
+            description = description,
+            priority = priority,
+            flagged = flagged,
+            deadline = deadline
+        )
+        repo.addTask(task)
+    }
+
+    fun toggleComplete(id: Long) {
+        repo.toggleComplete(id)
     }
 }
