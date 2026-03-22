@@ -121,11 +121,11 @@ fun CreateTaskScreen(
                 Text("Установить дату")
             }
 
-            if (selectedDate != null) {
+            selectedDate?.let { date ->
                 Spacer(Modifier.height(8.dp))
                 Text(
-                    text = "Выбранная дата: ${selectedDate!!.format(DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm"))}",
-                    color = MaterialTheme.colorScheme.primary
+                    text = "Выбранная дата: ${date.format(DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm"))}",
+                    color = MaterialTheme.colorScheme.primary,
                 )
             }
 

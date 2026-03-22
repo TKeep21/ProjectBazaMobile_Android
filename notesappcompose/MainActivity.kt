@@ -5,7 +5,9 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.*
+import androidx.compose.material.icons.automirrored.filled.Article
+import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
@@ -28,12 +30,13 @@ class MainActivity : ComponentActivity() {
         setContent {
             val taskViewModel: TaskViewModel = viewModel()
             val noteViewModel: NoteViewModel = viewModel()
+            val newsViewModel: NewsViewModel = viewModel()
             val navController = rememberNavController()
 
             val items = listOf(
-                TabItem("Главная", "home", Icons.Default.Home),
+                TabItem("Новости", "news", Icons.AutoMirrored.Filled.Article),
+                TabItem("Записи", "notes", Icons.Default.Edit),
                 TabItem("Задачи", "tasks", Icons.Default.CheckCircle),
-                TabItem("Записи", "notes", Icons.Default.Edit)
             )
 
             val navBackStackEntry by navController.currentBackStackEntryAsState()
@@ -63,11 +66,11 @@ class MainActivity : ComponentActivity() {
             ) { padding ->
                 NavHost(
                     navController = navController,
-                    startDestination = "home",
+                    startDestination = "news",
                     modifier = Modifier.padding(padding)
                 ) {
-                    composable("home") {
-                        HomeScreen(viewModel = taskViewModel)
+                    composable("news") {
+                        NewsScreen(viewModel = newsViewModel)
                     }
 
                     composable("tasks") {
