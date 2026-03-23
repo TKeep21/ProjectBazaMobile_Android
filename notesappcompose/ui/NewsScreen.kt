@@ -1,5 +1,6 @@
 package com.example.notesappcompose.ui
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -29,16 +30,19 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.produceState
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import coil.compose.SubcomposeAsyncImage
-import coil.request.ImageRequest
 import com.example.notesappcompose.data.NewsArticle
+import com.example.notesappcompose.data.news.NewsImageCacheDataSource
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -58,6 +62,38 @@ fun NewsScreen(viewModel: NewsViewModel) {
             if (ui.refreshInProgress && ui.articles.isNotEmpty()) {
                 LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
             }
+
+            if (ui.sourceLabel != null || ui.lastUpdatedLabel != null) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp, vertical = 8.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                ) {
+                    Text(
+                        text = ui.sourceLabel.orEmpty(),
+                        style = MaterialTheme.typography.labelLarge,
+                        color = MaterialTheme.colorScheme.primary,
+                    )
+                    Text(
+                        text = ui.lastUpdatedLabel.orEmpty(),
+                        style = MaterialTheme.typography.labelMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
+            }
+
+            if (ui.infoMessage != null) {
+                Text(
+                    text = ui.infoMessage.orEmpty(),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp, vertical = 4.dp),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
+
             when {
                 ui.isLoading && ui.articles.isEmpty() -> {
                     Box(
@@ -85,7 +121,7 @@ fun NewsScreen(viewModel: NewsViewModel) {
                         verticalArrangement = Arrangement.Center,
                     ) {
                         Text(
-                            text = ui.errorMessage ?: "",
+                            text = ui.errorMessage.orEmpty(),
                             style = MaterialTheme.typography.bodyLarge,
                         )
                         Spacer(Modifier.height(16.dp))
@@ -96,6 +132,17 @@ fun NewsScreen(viewModel: NewsViewModel) {
                 }
 
                 else -> {
+                    if (ui.errorMessage != null && ui.articles.isNotEmpty()) {
+                        Text(
+                            text = ui.errorMessage.orEmpty(),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 16.dp, vertical = 4.dp),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.error,
+                        )
+                    }
+
                     if (ui.articles.isEmpty()) {
                         Box(
                             modifier = Modifier.fillMaxSize(),
@@ -174,28 +221,46 @@ private fun NewsPreviewImage(imageUrl: String?) {
     }
 
     val context = LocalContext.current
-    SubcomposeAsyncImage(
-        model = ImageRequest.Builder(context)
-            .data(imageUrl)
-            .crossfade(300)
-            .build(),
-        contentDescription = null,
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(180.dp),
-        contentScale = ContentScale.Crop,
-        loading = {
+    val cache = remember(context) {
+        NewsImageCacheDataSource.getInstance(context.applicationContext)
+    }
+
+    val imageState by produceState<NewsImageState>(
+        initialValue = NewsImageState.Loading,
+        key1 = imageUrl,
+    ) {
+        value = NewsImageState.Loading
+        val bitmap = cache.getOrFetchBitmap(imageUrl)
+        value = if (bitmap != null) {
+            NewsImageState.Ready(bitmap.asImageBitmap())
+        } else {
+            NewsImageState.Error
+        }
+    }
+
+    when (val current = imageState) {
+        NewsImageState.Loading -> {
             Box(
                 modifier = placeholderModifier,
                 contentAlignment = Alignment.Center,
             ) {
                 CircularProgressIndicator(Modifier.size(36.dp))
             }
-        },
-        error = {
-            NewsImagePlaceholder(modifier = placeholderModifier)
-        },
-    )
+        }
+
+        NewsImageState.Error -> NewsImagePlaceholder(modifier = placeholderModifier)
+
+        is NewsImageState.Ready -> {
+            Image(
+                bitmap = current.bitmap,
+                contentDescription = null,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(180.dp),
+                contentScale = ContentScale.Crop,
+            )
+        }
+    }
 }
 
 @Composable
@@ -211,4 +276,10 @@ private fun NewsImagePlaceholder(modifier: Modifier = Modifier) {
             modifier = Modifier.size(48.dp),
         )
     }
+}
+
+private sealed interface NewsImageState {
+    data object Loading : NewsImageState
+    data object Error : NewsImageState
+    data class Ready(val bitmap: ImageBitmap) : NewsImageState
 }

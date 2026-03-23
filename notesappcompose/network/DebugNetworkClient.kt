@@ -9,9 +9,6 @@ import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
 import org.json.JSONObject
 
-/**
- * Дополнительный запрос для ДЗ: JSON body и пользовательские заголовки (лог в Logcat).
- */
 object DebugNetworkClient {
     private const val TAG = "DebugNetworkClient"
     private val jsonMediaType = "application/json; charset=utf-8".toMediaType()
