@@ -1,7 +1,5 @@
-# Локальные секреты и SDK
 local.properties
 
-# Сборка
 .gradle/
 build/
 *.iml

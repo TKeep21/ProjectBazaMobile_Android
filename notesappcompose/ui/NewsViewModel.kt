@@ -1,9 +1,11 @@
 package com.example.notesappcompose.ui
 
-import androidx.lifecycle.ViewModel
+import android.app.Application
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.notesappcompose.data.NewsArticle
+import com.example.notesappcompose.data.NewsLoadPayload
 import com.example.notesappcompose.data.NewsRepository
+import com.example.notesappcompose.data.NewsSource
 import com.example.notesappcompose.network.DebugNetworkClient
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -15,6 +17,9 @@ import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import java.net.SocketTimeoutException
 import java.net.UnknownHostException
+import java.text.DateFormat
+import java.util.Date
+import java.util.Locale
 
 private fun Throwable.toNewsLoadMessage(): String {
     var current: Throwable? = this
@@ -26,6 +31,7 @@ private fun Throwable.toNewsLoadMessage(): String {
                     "На эмуляторе иногда помогает Cold Boot или смена сети. " +
                     "Если в вашем регионе недоступен NYT — попробуйте VPN."
             }
+
             is SocketTimeoutException -> {
                 return "Таймаут сети. Проверьте подключение и попробуйте снова."
             }
@@ -39,13 +45,18 @@ private fun Throwable.toNewsLoadMessage(): String {
 data class NewsUiState(
     val isLoading: Boolean = true,
     val refreshInProgress: Boolean = false,
-    val articles: List<NewsArticle> = emptyList(),
+    val articles: List<com.example.notesappcompose.data.NewsArticle> = emptyList(),
     val errorMessage: String? = null,
+    val infoMessage: String? = null,
+    val sourceLabel: String? = null,
+    val lastUpdatedLabel: String? = null,
 )
 
 class NewsViewModel(
-    private val repository: NewsRepository = NewsRepository.create(),
-) : ViewModel() {
+    application: Application,
+) : AndroidViewModel(application) {
+
+    private val repository: NewsRepository = NewsRepository.create(application)
 
     private val _state = MutableStateFlow(NewsUiState())
     val state: StateFlow<NewsUiState> = _state.asStateFlow()
@@ -54,9 +65,12 @@ class NewsViewModel(
 
     init {
         viewModelScope.launch {
+            showCachedForFastStart()
+            startPeriodicRefresh()
+        }
+        viewModelScope.launch {
             DebugNetworkClient.logSamplePostWithJsonBody()
         }
-        startPeriodicRefresh()
     }
 
     private fun startPeriodicRefresh() {
@@ -69,6 +83,15 @@ class NewsViewModel(
         }
     }
 
+    private suspend fun showCachedForFastStart() {
+        val cached = repository.loadCachedNewsForFastStart() ?: return
+        applyPayload(
+            payload = cached,
+            loading = false,
+            refreshing = false,
+        )
+    }
+
     fun retryAfterError() {
         viewModelScope.launch {
             refreshInternal()
@@ -79,30 +102,44 @@ class NewsViewModel(
         val hadContent = _state.value.articles.isNotEmpty()
         _state.update { current ->
             when {
-                hadContent -> current.copy(refreshInProgress = true)
+                hadContent -> current.copy(refreshInProgress = true, errorMessage = null)
                 else -> current.copy(isLoading = true, errorMessage = null)
             }
         }
-        val result = repository.loadHomeNews()
-        val list = result.getOrNull()
-        if (list != null) {
-            _state.update {
-                it.copy(
-                    isLoading = false,
-                    refreshInProgress = false,
-                    articles = list,
-                    errorMessage = null,
-                )
-            }
-        } else {
-            val err = result.exceptionOrNull()
-            _state.update {
-                it.copy(
-                    isLoading = false,
-                    refreshInProgress = false,
-                    errorMessage = err?.toNewsLoadMessage() ?: "Не удалось загрузить новости",
-                )
-            }
+
+        val result = repository.refreshHomeNews()
+        val payload = result.getOrNull()
+        if (payload != null) {
+            applyPayload(
+                payload = payload,
+                loading = false,
+                refreshing = false,
+            )
+            return
+        }
+
+        val error = result.exceptionOrNull()?.toNewsLoadMessage() ?: "Не удалось загрузить новости"
+        _state.update {
+            it.copy(
+                isLoading = false,
+                refreshInProgress = false,
+                errorMessage = error,
+                infoMessage = null,
+            )
+        }
+    }
+
+    private fun applyPayload(payload: NewsLoadPayload, loading: Boolean, refreshing: Boolean) {
+        _state.update {
+            it.copy(
+                isLoading = loading,
+                refreshInProgress = refreshing,
+                articles = payload.articles,
+                errorMessage = null,
+                infoMessage = payload.warningMessage,
+                sourceLabel = payload.source.toUiLabel(),
+                lastUpdatedLabel = payload.loadedAtMs.toUiDateTime(),
+            )
         }
     }
 
@@ -110,4 +147,16 @@ class NewsViewModel(
         pollJob?.cancel()
         super.onCleared()
     }
+}
+
+private fun NewsSource.toUiLabel(): String {
+    return when (this) {
+        NewsSource.NETWORK -> "Источник: сеть"
+        NewsSource.CACHE -> "Источник: кэш"
+    }
+}
+
+private fun Long.toUiDateTime(): String {
+    val format = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT, Locale.getDefault())
+    return format.format(Date(this))
 }
