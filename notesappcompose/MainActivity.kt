@@ -7,11 +7,11 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Article
 import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.filled.Dashboard
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
@@ -34,6 +34,7 @@ class MainActivity : ComponentActivity() {
             val navController = rememberNavController()
 
             val items = listOf(
+                TabItem("Обзор", "home", Icons.Default.Dashboard),
                 TabItem("Новости", "news", Icons.AutoMirrored.Filled.Article),
                 TabItem("Записи", "notes", Icons.Default.Edit),
                 TabItem("Задачи", "tasks", Icons.Default.CheckCircle),
@@ -66,9 +67,13 @@ class MainActivity : ComponentActivity() {
             ) { padding ->
                 NavHost(
                     navController = navController,
-                    startDestination = "news",
+                    startDestination = "home",
                     modifier = Modifier.padding(padding)
                 ) {
+                    composable("home") {
+                        HomeScreen(viewModel = taskViewModel)
+                    }
+
                     composable("news") {
                         NewsScreen(viewModel = newsViewModel)
                     }
