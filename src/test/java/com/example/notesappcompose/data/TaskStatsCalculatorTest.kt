@@ -1,5 +1,8 @@
 package com.example.notesappcompose.data
 
+import com.example.notesappcompose.data.tasks.Priority
+import com.example.notesappcompose.data.tasks.Task
+import com.example.notesappcompose.data.tasks.TaskStatsCalculator
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
 import org.junit.Test
@@ -57,6 +60,33 @@ class TaskStatsCalculatorTest {
         assertEquals(0, stats.dueSoon)
         assertEquals(0, stats.highPriorityActive)
         assertEquals(2L, stats.nextDeadline?.id)
+    }
+
+    @Test
+    fun calculateCountsDueSoonBoundaryInclusively() {
+        val tasks = listOf(
+            task(id = 1L, deadline = now),
+            task(id = 2L, deadline = now.plusHours(24)),
+            task(id = 3L, deadline = now.plusHours(24).plusMinutes(1)),
+        )
+
+        val stats = calculator.calculate(tasks = tasks, now = now)
+
+        assertEquals(2, stats.dueSoon)
+        assertEquals(1L, stats.nextDeadline?.id)
+    }
+
+    @Test
+    fun calculateUsesEarliestActiveDeadline() {
+        val tasks = listOf(
+            task(id = 1L, completed = true, deadline = now.minusDays(2)),
+            task(id = 2L, deadline = now.plusDays(3)),
+            task(id = 3L, deadline = now.plusHours(5)),
+        )
+
+        val stats = calculator.calculate(tasks = tasks, now = now)
+
+        assertEquals(3L, stats.nextDeadline?.id)
     }
 
     private fun task(

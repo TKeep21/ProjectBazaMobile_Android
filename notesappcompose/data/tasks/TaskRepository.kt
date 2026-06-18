@@ -1,5 +1,4 @@
-package com.example.notesappcompose.data
-
+package com.example.notesappcompose.data.tasks
 
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow

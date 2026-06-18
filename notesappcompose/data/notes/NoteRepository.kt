@@ -1,5 +1,6 @@
-package com.example.notesappcompose.data
+package com.example.notesappcompose.data.notes
 
+import com.example.notesappcompose.data.notes.Note
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 
@@ -15,4 +16,3 @@ class NoteRepository {
         _notes.value = _notes.value.filter { it.id != id }
     }
 }
-

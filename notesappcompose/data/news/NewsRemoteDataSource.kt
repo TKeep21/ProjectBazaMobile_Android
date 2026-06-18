@@ -1,7 +1,7 @@
 package com.example.notesappcompose.data.news
 
 import com.example.notesappcompose.BuildConfig
-import com.example.notesappcompose.data.NewsArticle
+import com.example.notesappcompose.data.news.NewsArticle
 import com.example.notesappcompose.data.remote.NyTimesArticleDto
 import com.example.notesappcompose.data.remote.NyTimesMultimediaDto
 import com.example.notesappcompose.network.NyTimesApi

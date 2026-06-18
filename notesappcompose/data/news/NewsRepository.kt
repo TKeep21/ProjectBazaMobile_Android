@@ -1,8 +1,6 @@
-package com.example.notesappcompose.data
+package com.example.notesappcompose.data.news
 
 import android.content.Context
-import com.example.notesappcompose.data.news.NewsListCacheDataSource
-import com.example.notesappcompose.data.news.NewsRemoteDataSource
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 

@@ -5,9 +5,10 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.*
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.example.notesappcompose.data.Note
+import com.example.notesappcompose.data.notes.Note
 import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
 
@@ -32,7 +33,10 @@ fun NoteCard(
                     fontWeight = FontWeight.Bold,
                     modifier = Modifier.weight(1f)
                 )
-                IconButton(onClick = onDelete) {
+                IconButton(
+                    onClick = onDelete,
+                    modifier = Modifier.testTag("deleteNote_${note.id}")
+                ) {
                     Text("×", style = MaterialTheme.typography.titleLarge, color = Color.Red)
                 }
             }
@@ -55,4 +59,3 @@ fun NoteCard(
         }
     }
 }
-

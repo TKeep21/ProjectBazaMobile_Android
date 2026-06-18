@@ -1,9 +1,10 @@
-package com.example.notesappcompose.ui
+package com.example.notesappcompose.ui.notes
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.*
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -28,7 +29,9 @@ fun CreateNoteScreen(
                 value = title,
                 onValueChange = { title = it },
                 label = { Text("Заголовок") },
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .testTag("noteTitleInput")
             )
 
             Spacer(Modifier.height(12.dp))
@@ -39,7 +42,8 @@ fun CreateNoteScreen(
                 label = { Text("Содержание") },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .weight(1f),
+                    .weight(1f)
+                    .testTag("noteContentInput"),
                 minLines = 10
             )
 
@@ -52,11 +56,12 @@ fun CreateNoteScreen(
                         onSave()
                     }
                 },
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .testTag("saveNoteButton")
             ) {
                 Text("Сохранить")
             }
         }
     }
 }
-

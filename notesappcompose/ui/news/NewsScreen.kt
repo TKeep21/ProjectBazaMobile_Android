@@ -1,4 +1,4 @@
-package com.example.notesappcompose.ui
+package com.example.notesappcompose.ui.news
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -41,7 +41,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.example.notesappcompose.data.NewsArticle
+import com.example.notesappcompose.data.news.NewsArticle
 import com.example.notesappcompose.data.news.NewsImageCacheDataSource
 
 @OptIn(ExperimentalMaterial3Api::class)

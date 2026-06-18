@@ -1,4 +1,4 @@
-package com.example.notesappcompose.data
+package com.example.notesappcompose.data.news
 
 data class NewsArticle(
     val title: String,

@@ -1,10 +1,11 @@
-package com.example.notesappcompose.ui
+package com.example.notesappcompose.ui.task
 
 import androidx.lifecycle.ViewModel
-import com.example.notesappcompose.data.TaskRepository
-import com.example.notesappcompose.data.Priority
-import com.example.notesappcompose.data.Task
+import com.example.notesappcompose.data.tasks.Priority
+import com.example.notesappcompose.data.tasks.Task
+import com.example.notesappcompose.data.tasks.TaskRepository
 import kotlinx.coroutines.flow.StateFlow
+import java.time.LocalDateTime
 
 class TaskViewModel : ViewModel() {
 
@@ -17,7 +18,7 @@ class TaskViewModel : ViewModel() {
         description: String,
         priority: Priority,
         flagged: Boolean,
-        deadline: java.time.LocalDateTime?
+        deadline: LocalDateTime?
     ) {
         val task = Task(
             title = title,

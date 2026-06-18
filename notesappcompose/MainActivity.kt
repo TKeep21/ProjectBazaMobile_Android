@@ -19,8 +19,15 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import com.example.notesappcompose.ui.*
-
+import com.example.notesappcompose.ui.news.NewsScreen
+import com.example.notesappcompose.ui.news.NewsViewModel
+import com.example.notesappcompose.ui.notes.CreateNoteScreen
+import com.example.notesappcompose.ui.HomeScreen
+import com.example.notesappcompose.ui.notes.NoteViewModel
+import com.example.notesappcompose.ui.notes.NotesScreen
+import com.example.notesappcompose.ui.task.CreateTaskScreen
+import com.example.notesappcompose.ui.task.TaskListScreen
+import com.example.notesappcompose.ui.task.TaskViewModel
 
 
 class MainActivity : ComponentActivity() {

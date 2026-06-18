@@ -7,7 +7,8 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.*
 import androidx.compose.ui.unit.dp
-import com.example.notesappcompose.data.TaskStatsCalculator
+import com.example.notesappcompose.data.tasks.TaskStatsCalculator
+import com.example.notesappcompose.ui.task.TaskViewModel
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 

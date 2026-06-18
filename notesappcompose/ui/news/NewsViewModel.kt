@@ -1,11 +1,12 @@
-package com.example.notesappcompose.ui
+package com.example.notesappcompose.ui.news
 
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.notesappcompose.data.NewsLoadPayload
-import com.example.notesappcompose.data.NewsRepository
-import com.example.notesappcompose.data.NewsSource
+import com.example.notesappcompose.data.news.NewsLoadPayload
+import com.example.notesappcompose.data.news.NewsRepository
+import com.example.notesappcompose.data.news.NewsSource
+import com.example.notesappcompose.data.news.NewsArticle
 import com.example.notesappcompose.network.DebugNetworkClient
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -45,7 +46,7 @@ private fun Throwable.toNewsLoadMessage(): String {
 data class NewsUiState(
     val isLoading: Boolean = true,
     val refreshInProgress: Boolean = false,
-    val articles: List<com.example.notesappcompose.data.NewsArticle> = emptyList(),
+    val articles: List<NewsArticle> = emptyList(),
     val errorMessage: String? = null,
     val infoMessage: String? = null,
     val sourceLabel: String? = null,

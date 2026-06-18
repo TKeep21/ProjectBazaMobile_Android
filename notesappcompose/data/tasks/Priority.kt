@@ -1,4 +1,4 @@
-package com.example.notesappcompose.data
+package com.example.notesappcompose.data.tasks
 
 enum class Priority(val label: String) {
     LOW("Низкий"),
